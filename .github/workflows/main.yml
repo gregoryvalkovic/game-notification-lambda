@@ -16,6 +16,7 @@ jobs:
           args: zip -qq -r src.zip src
       - uses: actions/upload-artifact@v4.3.1
         with:
+          path: .
           name: src.zip
           if-no-files-found: error
           overwrite: true
