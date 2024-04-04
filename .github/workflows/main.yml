@@ -17,7 +17,8 @@ jobs:
       - uses: actions/upload-artifact@v4.3.1
         with:
           name: src.zip
-          error: Could not upload src zip
+          if-no-files-found: error
+          overwrite: true
       - name: Deploy AWS Lambda
         # You may pin to the exact commit or the version.
         # uses: embeddedinn/deploy_lambda@893844c709673cb38d6d3451e1833db44fbd2d88
