@@ -1,0 +1,30 @@
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  aws-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions@checkout/v4
+      - uses: montudor/action-zip@v1.0.0
+        with:
+          args: zip -qq -r src.zip src
+      - uses: actions/upload-artifact@v4.3.1
+        with:
+          name: src.zip
+          error: Could not upload src zip
+      - name: Deploy AWS Lambda
+        # You may pin to the exact commit or the version.
+        # uses: embeddedinn/deploy_lambda@893844c709673cb38d6d3451e1833db44fbd2d88
+        uses: embeddedinn/deploy_lambda@v1.0.0
+        with:
+          access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          access-key-secret: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          region: ${{ secrets.AWS_REGION }}
+          lambda-name: ${{ secrets.LAMBDA_NAME }}
+          zip-file: src.zip
