@@ -7,10 +7,10 @@ on:
     - main
 
 jobs:
-  aws-deploy:
+  aws-lambda-deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions@checkout/v4
+      - uses: actions/checkout@v4
       - uses: montudor/action-zip@v1.0.0
         with:
           args: zip -qq -r src.zip src
