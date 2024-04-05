@@ -138,7 +138,7 @@ async function UpdateGameInProgress(gameName, previousRound, currentRound, curre
 }
 
 async function DeleteGameInProgress(gameName, round) {
-    console.log(`Deleting ${gameName} on round ${round}`);
+    //console.log(`Deleting ${gameName} on round ${round}`);
     return await dynamo.send(
         new DeleteCommand({
             TableName: gamesInProgressTable,
