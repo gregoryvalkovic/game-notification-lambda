@@ -5,6 +5,7 @@ import {
   GetCommand,
   DeleteCommand
 } from "@aws-sdk/lib-dynamodb";
+import { PostMessage } from "./index.mjs";
 
 const client = new DynamoDBClient({});
 const dynamo = DynamoDBDocumentClient.from(client);
@@ -16,7 +17,7 @@ const civCloudPath = "/civ-6-cloud";
 const civPydtPath = "/civ-6-pydt";
 
 export const handler = async (event) => {
-    console.log('Received event:', JSON.stringify(event, null, 2));
+    //console.log('Received event:', JSON.stringify(event, null, 2));
 
     let body;
     let statusCode = '200';
@@ -116,21 +117,24 @@ async function ProcessEvent(gameName, inGameName, round, game) {
     const userName = await FetchUsername(inGameName);
     let gameInProgress = await FetchGameInProgress(gameName, round);
     
-    console.log(`Fetched game: ${JSON.stringify(gameInProgress)}`);
-    
+    //console.log(`Fetched game: ${JSON.stringify(gameInProgress)}`);
+
     if (gameInProgress?.Item === undefined) {
-        await AddGameInProgress({ GameName: gameName, Turn: round, CurrentUser: userName, Game: game});
+        const notificationId = await PostMessage(gameName, game, username);
+        await AddGameInProgress({ GameName: gameName, Turn: round, CurrentUser: userName, Game: game, notificationId });
         return;
     }
     const outdatedGame = gameInProgress.Item;
-    console.log(`Outdated game: ${JSON.stringify(outdatedGame)}`);
-    await UpdateGameInProgress(outdatedGame.GameName, outdatedGame.Turn, round, userName, outdatedGame.Game);
+    //console.log(`Outdated game: ${JSON.stringify(outdatedGame)}`);
+    const notificationId = await PostMessage(gameName, game, username);
+    await AddGameInProgress({ GameName: gameName, Turn: round, CurrentUser: userName, Game: game, NotificationId: notificationId });
+    await UpdateGameInProgress(outdatedGame.GameName, outdatedGame.Turn, round, userName, outdatedGame.Game, notificationId);
 }
 
-async function UpdateGameInProgress(gameName, previousRound, currentRound, currentUser, game) {
+async function UpdateGameInProgress(gameName, previousRound, currentRound, currentUser, game, notificationId) {
     const deleteResponse = await DeleteGameInProgress(gameName, previousRound);
-    console.log(`Delete response: ${JSON.stringify(deleteResponse)}`);
-    await AddGameInProgress({GameName: gameName, Turn: currentRound, Game: game, CurrentUser: currentUser});
+    //console.log(`Delete response: ${JSON.stringify(deleteResponse)}`);
+    await AddGameInProgress({GameName: gameName, Turn: currentRound, Game: game, CurrentUser: currentUser, NotificationId: notificationId});
 }
 
 async function DeleteGameInProgress(gameName, round) {
@@ -142,3 +146,8 @@ async function DeleteGameInProgress(gameName, round) {
         })
     );
 }
+
+function CreateUpdateMessage(gameName, game, username) {
+    return `# ${gameInProgress.Game} | ${gameInProgress.GameName}\n${username}'s turn`;
+}
+    
