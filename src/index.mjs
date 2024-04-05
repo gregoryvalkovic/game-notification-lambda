@@ -148,6 +148,6 @@ async function DeleteGameInProgress(gameName, round) {
 }
 
 function CreateUpdateMessage(gameName, game, username) {
-    return `# ${gameInProgress.Game} | ${gameInProgress.GameName}\n${username}'s turn!`;
+    return `# ${gameInProgress.Game} | ${gameInProgress.GameName}\n${username}'s turn`;
 }
     
