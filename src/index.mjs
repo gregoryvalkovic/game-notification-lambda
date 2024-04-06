@@ -24,7 +24,7 @@ export const handler = async (event) => {
     const headers = {
         'Content-Type': 'application/json',
     };
-    
+
     try {
         let gameName;
         let inGameName;
@@ -132,7 +132,7 @@ async function ProcessEvent(gameName, inGameName, round, game) {
 }
 
 async function UpdateGameInProgress(gameName, previousRound, currentRound, currentUser, game, notificationId) {
-    const deleteResponse = await DeleteGameInProgress(gameName, previousRound);
+    await DeleteGameInProgress(gameName, previousRound);
     //console.log(`Delete response: ${JSON.stringify(deleteResponse)}`);
     await AddGameInProgress({GameName: gameName, Turn: currentRound, Game: game, CurrentUser: currentUser, NotificationId: notificationId});
 }
