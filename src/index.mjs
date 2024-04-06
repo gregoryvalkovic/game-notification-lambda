@@ -5,7 +5,7 @@ import {
   GetCommand,
   DeleteCommand
 } from "@aws-sdk/lib-dynamodb";
-import { PostMessage } from "./index.mjs";
+import { PostMessage } from "./webhook-handler.mjs";
 
 const client = new DynamoDBClient({});
 const dynamo = DynamoDBDocumentClient.from(client);
@@ -120,13 +120,13 @@ async function ProcessEvent(gameName, inGameName, round, game) {
     //console.log(`Fetched game: ${JSON.stringify(gameInProgress)}`);
 
     if (gameInProgress?.Item === undefined) {
-        const notificationId = await PostMessage(gameName, game, username);
+        const notificationId = await PostMessage(gameName, game, userName);
         await AddGameInProgress({ GameName: gameName, Turn: round, CurrentUser: userName, Game: game, notificationId });
         return;
     }
     const outdatedGame = gameInProgress.Item;
     //console.log(`Outdated game: ${JSON.stringify(outdatedGame)}`);
-    const notificationId = await PostMessage(gameName, game, username);
+    const notificationId = await PostMessage(gameName, game, userName);
     await AddGameInProgress({ GameName: gameName, Turn: round, CurrentUser: userName, Game: game, NotificationId: notificationId });
     await UpdateGameInProgress(outdatedGame.GameName, outdatedGame.Turn, round, userName, outdatedGame.Game, notificationId);
 }
@@ -145,9 +145,5 @@ async function DeleteGameInProgress(gameName, round) {
             Key: {GameName: gameName, Turn: round}
         })
     );
-}
-
-function CreateUpdateMessage(gameName, game, username) {
-    return `# ${gameInProgress.Game} | ${gameInProgress.GameName}\n${username}'s turn`;
 }
     
